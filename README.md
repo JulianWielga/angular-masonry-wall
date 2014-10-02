@@ -25,8 +25,8 @@ use [Bower](http://bower.io/) to install `bower install https://github.com/Julia
 + Use directive ***masonry*** like below -
 
 	```html
-	<div masonry margin-x="20" margin-y="30" brick-width="250" style="margin:3% 2% 0 2%; padding: 			20px 1% 0; border:1px solid black; width:43%; float:left;">
-		<div data-ng-repeat="image in images" style="border:1px solid black; border-radius:5px; padding:1px;">
+	<div masonry margin-x="20" margin-y="30" brick-width="250" class="wall">
+		<div ng-repeat="image in images" class="brick">
 			<img ng-src="http://lorempixel.com/{{image.src}}">
 		</div>
 	</div>
