@@ -13,12 +13,12 @@ http://bimal1331.github.io/angular-masonry-fly
 + Angularjs 1.2+ only
 
 #####INSTALLATION
-+ Download angular-masonry.min.js and include it with your JS files.
++ Download angular-masonry.js and include it with your JS files.
 + Include module ***masonryLayout*** in your main app module.
 
 or
 
-use [Bower](http://bower.io/) to install `bower install angular-masonry-fly`
+~~use [Bower](http://bower.io/) to install `bower install angular-masonry-fly`~~
 
 #####USAGE
 
@@ -27,12 +27,12 @@ use [Bower](http://bower.io/) to install `bower install angular-masonry-fly`
 	```html
 	<div data-masonry data-x-margin="20" data-y-margin="30" data-img-width="250" style="margin:3% 2% 0 2%; padding: 			20px 1% 0; border:1px solid black; width:43%; float:left;">
 		<div data-ng-repeat="image in images" style="border:1px solid black; border-radius:5px; padding:1px;">
-			<img ng-src="http://lorempixel.com/{{image.src}}">		
+			<img ng-src="http://lorempixel.com/{{image.src}}">
 		</div>
 	</div>
 	```
-	+ data-x-margin - Horizontal gap between image containers
-	+ data-y-Margin - Vertical gap between image containers
-	+ data-img-width - Image width you'll be using for the layout, ideally should be image's natural width
+	+ data-x-margin - Horizontal gap between image containers (default: 0)
+	+ data-y-Margin - Vertical gap between image containers (default: 0)
+	+ data-img-width - Image width you'll be using for the layout, ideally should be image's natural width (default: width of first element)
 
 That's it!
