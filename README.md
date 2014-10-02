@@ -13,12 +13,12 @@ http://bimal1331.github.io/angular-masonry-fly
 + Angularjs 1.2+ only
 
 #####INSTALLATION
-+ Download angular-masonry.js and include it with your JS files.
++ Download angular-masonry.coffee, compile and include with your JS files.
 + Include module ***masonryLayout*** in your main app module.
 
 or
 
-~~use [Bower](http://bower.io/) to install `bower install angular-masonry-fly`~~
+use [Bower](http://bower.io/) to install `bower install https://github.com/JulianWielga/angular-masonry-fly.git`
 
 #####USAGE
 
@@ -33,6 +33,6 @@ or
 	```
 	+ data-x-margin - Horizontal gap between image containers (default: 0)
 	+ data-y-Margin - Vertical gap between image containers (default: 0)
-	+ data-img-width - Image width you'll be using for the layout, ideally should be image's natural width (default: width of first element)
+	+ data-img-width - Image width you'll be using for the layout, ideally should be image's natural width (if not set or 0: width of first element)
 
 That's it!

@@ -1,12 +1,26 @@
 "use strict"
+
+debounce = (func, threshold, execAsap) ->
+  timeout = null
+  (args...) ->
+    obj = this
+    delayed = ->
+      func.apply(obj, args) unless execAsap
+      timeout = null
+    if timeout
+      clearTimeout(timeout)
+    else if (execAsap)
+      func.apply(obj, args)
+    timeout = setTimeout delayed, threshold || 100
+
 angular.module "masonryLayout", []
 
 .directive "masonry", [
   "$window", "$rootScope"
   ($window, $rootScope) ->
     class Wall
-      constructor: (marginX, marginY, imgWidth) ->
-        @IMG_WIDTH = imgWidth or 0
+      constructor: (marginX, marginY, @imgWidth) ->
+        @IMG_WIDTH = @imgWidth or 0
         @IMG_MARGIN_X = marginX or 0
         @IMG_MARGIN_Y = marginY or 0
         @imagesLoadCount = 0
@@ -30,8 +44,8 @@ angular.module "masonryLayout", []
         @containers[i] = 0 for container, i in @containers
 
       checkImgWidth: (firstElWidth) ->
-        if not (@IMG_WIDTH > 0) and firstElWidth > 0
-          @IMG_WIDTH = firstElWidth
+        return if @imgWidth > 0
+        @IMG_WIDTH = firstElWidth if firstElWidth > 0
 
       setWindowWidth: ->
         @windowWidth = $window.innerWidth
@@ -41,8 +55,7 @@ angular.module "masonryLayout", []
           a - b
         )[0]
 
-      shouldResize: ->
-        (if (Math.abs(@windowWidth - $window.innerWidth) > 10) and not @resizing then true else false)
+      shouldResize: -> not @resizing
 
       tallest: ->
         @containers.slice().sort((a, b) ->
@@ -64,21 +77,22 @@ angular.module "masonryLayout", []
         newLeft = homeColumn * (wall.IMG_WIDTH + wall.IMG_MARGIN_X) + wall.marginWidth
         newTop = wall.containers[homeColumn]
 
-      repaint = ->
-        if wall.shouldResize()
-          imageContainers = element[0].children
-          wall.resizing = true
-          wall.setWindowWidth()
+      repaint = debounce ->
+          if wall.shouldResize()
+            imageContainers = element[0].children
+            wall.resizing = true
+            wall.setWindowWidth()
 
-          #Reset wall attributes
-          wall.reset element
-          for container in imageContainers
-            setNewCoordinates()
-            container.style.cssText += "; left: " + newLeft + "px; top: " + newTop + "px;"
-            wall.update homeColumn, container.scrollHeight + wall.IMG_MARGIN_Y
+            #Reset wall attributes
+            wall.reset element
+            for container in imageContainers
+              setNewCoordinates()
+              container.style.cssText += "; left: " + newLeft + "px; top: " + newTop + "px;"
+              wall.update homeColumn, container.scrollHeight + wall.IMG_MARGIN_Y
 
-          element[0].style.height = wall.tallest() + "px"
-          wall.resizing = false
+            element[0].style.height = wall.tallest() + "px"
+            wall.resizing = false
+        , 300
 
       fixBrick = (brick) ->
         setNewCoordinates()
