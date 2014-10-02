@@ -5,7 +5,7 @@
     "Bimal Kumar"
   ],
   "main": [
-    "angular-masonry.min.js"
+    "angular-masonry.coffee"
   ],
   "description": "AngularJS directive which generates a masonry layout image by image without the need to know each individual height",
   "keywords": [
