@@ -67,7 +67,7 @@ angular.module "masonryLayout", []
 
     restrict: "A"
     link: (scope, element, attrs, ctrl) ->
-      wall = new Wall(+attrs.xMargin, +attrs.yMargin, +attrs.imgWidth)
+      wall = new Wall(+attrs.marginX, +attrs.marginY, +attrs.brickWidth)
       homeColumn = undefined
       newLeft = undefined
       newTop = undefined

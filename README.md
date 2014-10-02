@@ -22,17 +22,17 @@ use [Bower](http://bower.io/) to install `bower install https://github.com/Julia
 
 #####USAGE
 
-+ Use directive ***data-masonry*** like below -
++ Use directive ***masonry*** like below -
 
 	```html
-	<div data-masonry data-x-margin="20" data-y-margin="30" data-img-width="250" style="margin:3% 2% 0 2%; padding: 			20px 1% 0; border:1px solid black; width:43%; float:left;">
+	<div masonry margin-x="20" margin-y="30" brick-width="250" style="margin:3% 2% 0 2%; padding: 			20px 1% 0; border:1px solid black; width:43%; float:left;">
 		<div data-ng-repeat="image in images" style="border:1px solid black; border-radius:5px; padding:1px;">
 			<img ng-src="http://lorempixel.com/{{image.src}}">
 		</div>
 	</div>
 	```
-	+ data-x-margin - Horizontal gap between image containers (default: 0)
-	+ data-y-Margin - Vertical gap between image containers (default: 0)
-	+ data-img-width - Image width you'll be using for the layout, ideally should be image's natural width (if not set or 0: width of first element)
+	+ margin-x - Horizontal gap between image containers (default: 0)
+	+ margin-y - Vertical gap between image containers (default: 0)
+	+ brick-width - Image width you'll be using for the layout, ideally should be image's natural width (if not set or 0: width of first element)
 
 That's it!
