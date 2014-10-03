@@ -1,23 +1,16 @@
 "use strict"
 
-angular.module "masonryLayout", []
-
-.directive "masonryBrick", [->
-  controller: class
-    constructor: () ->
-      @column = null
-
-  restrict: "EA"
-  link: (scope, element, attrs, ctrl) ->
-    scope.$on "$destroy", ->
+angular.module "masonryLayout", [
+  'masonryLayoutBrick'
 ]
 
 .directive "masonryWall", [
   "$window"
   ($window) ->
+    restrict: "EA"
 
-    controller: class
-      constructor: ->
+    controller: ['$scope', '$attrs', class
+      constructor: (@scope, @attrs) ->
         @imagesLoadCount = 0
         @totalItemCount = 0
         @resizing = false
@@ -25,11 +18,10 @@ angular.module "masonryLayout", []
         @containers
         @containerWidth
         @marginWidth
-
-      readAttrs: (marginX, marginY, @brickWidth) ->
+        @brickWidth = +@attrs.brickWidth
         @BRICK_WIDTH = @brickWidth or 0
-        @BRICK_MARGIN_X = marginX or 0
-        @BRICK_MARGIN_Y = marginY or 0
+        @BRICK_MARGIN_X = +@attrs.marginX or 0
+        @BRICK_MARGIN_Y = +@attrs.marginY or 0
 
       docHeight: -> $window.innerHeight * 2.5
 
@@ -64,10 +56,9 @@ angular.module "masonryLayout", []
 
       update: (column, height) ->
         @containers[column] += height
+    ]
 
-    restrict: "EA"
     link: (scope, element, attrs, ctrl) ->
-      ctrl.readAttrs(+attrs.marginX, +attrs.marginY, +attrs.brickWidth)
       homeColumn = undefined
 
       setNewCoordinates = (el) ->
@@ -134,6 +125,9 @@ angular.module "masonryLayout", []
           i++
 
       angular.element($window).on "resize", repaint
+
+      scope.$on "brickLeave", -> console.log "brickLeave"
+      scope.$on "brickEnter", -> console.log "brickEnter"
 
       scope.$on "$destroy", ->
         angular.element($window).off "resize", repaint

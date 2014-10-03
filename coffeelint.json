@@ -1,0 +1,18 @@
+{
+  "no_tabs": {
+    "name": "no_tabs",
+    "level": "ignore"
+  },
+  "indentation": {
+    "name": "indentation",
+    "level": "ignore"
+  },
+  "missing_fat_arrows": {
+    "name": "missing_fat_arrows",
+    "level": "warn"
+  },
+  "max_line_length": {
+    "name": "max_line_length",
+    "value": 120
+  }
+}
