@@ -15,14 +15,24 @@ debounce = (func, threshold, execAsap) ->
 
 angular.module "masonryLayout", []
 
-.directive "masonry", [
+.directive "masonryBrick", [->
+  controller: class
+    constructor: () ->
+      @column = null
+
+  restrict: "EA"
+  link: (scope, element, attrs, ctrl) ->
+    scope.$on "$destroy", ->
+]
+
+.directive "masonryWall", [
   "$window", "$rootScope"
   ($window, $rootScope) ->
     class Wall
-      constructor: (marginX, marginY, @imgWidth) ->
-        @IMG_WIDTH = @imgWidth or 0
-        @IMG_MARGIN_X = marginX or 0
-        @IMG_MARGIN_Y = marginY or 0
+      constructor: (marginX, marginY, @brickWidth) ->
+        @BRICK_WIDTH = @brickWidth or 0
+        @BRICK_MARGIN_X = marginX or 0
+        @BRICK_MARGIN_Y = marginY or 0
         @imagesLoadCount = 0
         @totalItemCount = 0
         @resizing = false
@@ -34,18 +44,18 @@ angular.module "masonryLayout", []
       docHeight: -> $window.innerHeight * 2.5
 
       reset: ($element) ->
-        @checkImgWidth $element[0].children[0].offsetWidth
+        @checkbrickWidth $element[0].children[0].offsetWidth
         document.body.style.overflow = "scroll"
         @containerWidth = $element[0].clientWidth
         document.body.style.overflow = "auto"
-        columns = Math.floor((@containerWidth + @IMG_MARGIN_X) / (@IMG_WIDTH + @IMG_MARGIN_X))
-        @marginWidth = Math.abs((@containerWidth - @IMG_WIDTH * columns - @IMG_MARGIN_X * (columns - 1)) / 2)
+        columns = Math.floor((@containerWidth + @BRICK_MARGIN_X) / (@BRICK_WIDTH + @BRICK_MARGIN_X))
+        @marginWidth = Math.abs((@containerWidth - @BRICK_WIDTH * columns - @BRICK_MARGIN_X * (columns - 1)) / 2)
         @containers = new Array columns
         @containers[i] = 0 for container, i in @containers
 
-      checkImgWidth: (firstElWidth) ->
-        return if @imgWidth > 0
-        @IMG_WIDTH = firstElWidth if firstElWidth > 0
+      checkbrickWidth: (firstElWidth) ->
+        return if @brickWidth > 0
+        @BRICK_WIDTH = firstElWidth if firstElWidth > 0
 
       setWindowWidth: ->
         @windowWidth = $window.innerWidth
@@ -65,14 +75,14 @@ angular.module "masonryLayout", []
       update: (column, height) ->
         @containers[column] += height
 
-    restrict: "A"
+    restrict: "EA"
     link: (scope, element, attrs, ctrl) ->
       wall = new Wall(+attrs.marginX, +attrs.marginY, +attrs.brickWidth)
       homeColumn = undefined
 
       setNewCoordinates = (el) ->
         homeColumn = wall.shortest()
-        newLeft = homeColumn * (wall.IMG_WIDTH + wall.IMG_MARGIN_X) + wall.marginWidth
+        newLeft = homeColumn * (wall.BRICK_WIDTH + wall.BRICK_MARGIN_X) + wall.marginWidth
         newTop = wall.containers[homeColumn]
 
         angular.element(el).css
@@ -90,7 +100,7 @@ angular.module "masonryLayout", []
             for container in imageContainers
               setNewCoordinates container
 
-              wall.update homeColumn, container.scrollHeight + wall.IMG_MARGIN_Y
+              wall.update homeColumn, container.scrollHeight + wall.BRICK_MARGIN_Y
 
             element.css height: wall.tallest() + "px"
             wall.resizing = false
@@ -98,7 +108,7 @@ angular.module "masonryLayout", []
 
       fixBrick = (brick) ->
         setNewCoordinates brick
-        wall.update homeColumn, brick.scrollHeight + wall.IMG_MARGIN_Y
+        wall.update homeColumn, brick.scrollHeight + wall.BRICK_MARGIN_Y
 
         #this is the last image loaded
         #correct parent height
