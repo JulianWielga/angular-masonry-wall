@@ -87,32 +87,37 @@ angular.module "masonryLayout", []
             wall.reset element
             for container in imageContainers
               setNewCoordinates()
-              container.style.cssText += "; left: " + newLeft + "px; top: " + newTop + "px;"
+              angular.element(container).css
+                left: newLeft
+                top: newTop
+
               wall.update homeColumn, container.scrollHeight + wall.IMG_MARGIN_Y
 
-            element[0].style.height = wall.tallest() + "px"
+            element.css height: wall.tallest() + "px"
             wall.resizing = false
         , 300
 
       fixBrick = (brick) ->
         setNewCoordinates()
-        brick.style.cssText += "; left: " + newLeft + "px; top: " + newTop + "px;"
+
+        angular.element(brick).css
+          left: newLeft
+          top: newTop
+          visibility: 'visible'
+
         wall.update homeColumn, brick.scrollHeight + wall.IMG_MARGIN_Y
 
         #this is the last image loaded
         #correct parent height
-        element[0].style.height = wall.tallest() + "px"  if ++wall.imagesLoadCount is wall.totalItemCount
+        if ++wall.imagesLoadCount is wall.totalItemCount
+          element.css height: wall.tallest()
 
       attachListener = (brick) ->
-        brick.style.cssText += "; left: -999px; top: -999px; position:absolute; "
+        angular.element(brick).css
+          position: 'absolute'
+          visibility: 'hidden'
 
-        #Create closure for image containers i.e bricks
-        imgElem = brick.getElementsByTagName("img")[0]
-        if imgElem?
-          imgElem.addEventListener "load", -> fixBrick brick
-          imgElem.addEventListener "error", -> fixBrick brick
-        else
-          fixBrick brick
+        imagesLoaded brick, -> fixBrick brick
 
       # wall.imagesLoadCount++;
       scope.$watch ->
@@ -120,14 +125,14 @@ angular.module "masonryLayout", []
       , (newCount, oldCount) ->
         return if newCount is oldCount
         if oldCount is 0
-          element[0].style.height = 0
+          element.css height: 0
           wall.totalItemCount = 0
           wall.imagesLoadCount = 0
 
           #Reset wall attributes
           wall.reset element
         wall.totalItemCount = newCount
-        element[0].style.height = wall.tallest() + (wall.docHeight()) + "px"
+        element.css height: wall.tallest() + (wall.docHeight()) + "px"
 
         i = oldCount
         while i < newCount
@@ -139,5 +144,5 @@ angular.module "masonryLayout", []
       scope.$on "$destroy", ->
         angular.element($window).off "resize", repaint
 
-      element[0].style.position = "relative"
+      element.css position: "relative"
 ]

@@ -11,6 +11,7 @@ http://bimal1331.github.io/angular-masonry-fly
 
 #####REQUIREMENTS
 + Angularjs 1.2+ only
++ imagesloaded
 
 #####INSTALLATION
 + Download angular-masonry.coffee, compile and include with your JS files.
