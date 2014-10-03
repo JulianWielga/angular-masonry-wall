@@ -72,10 +72,14 @@ angular.module "masonryLayout", []
       newLeft = undefined
       newTop = undefined
 
-      setNewCoordinates = ->
+      setNewCoordinates = (el) ->
         homeColumn = wall.shortest()
         newLeft = homeColumn * (wall.IMG_WIDTH + wall.IMG_MARGIN_X) + wall.marginWidth
         newTop = wall.containers[homeColumn]
+
+        angular.element(el).css
+          left: newLeft
+          top: newTop
 
       repaint = debounce ->
           if wall.shouldResize()
@@ -86,10 +90,7 @@ angular.module "masonryLayout", []
             #Reset wall attributes
             wall.reset element
             for container in imageContainers
-              setNewCoordinates()
-              angular.element(container).css
-                left: newLeft
-                top: newTop
+              setNewCoordinates container
 
               wall.update homeColumn, container.scrollHeight + wall.IMG_MARGIN_Y
 
@@ -98,13 +99,7 @@ angular.module "masonryLayout", []
         , 300
 
       fixBrick = (brick) ->
-        setNewCoordinates()
-
-        angular.element(brick).css
-          left: newLeft
-          top: newTop
-          visibility: 'visible'
-
+        setNewCoordinates brick
         wall.update homeColumn, brick.scrollHeight + wall.IMG_MARGIN_Y
 
         #this is the last image loaded
@@ -113,9 +108,10 @@ angular.module "masonryLayout", []
           element.css height: wall.tallest()
 
       attachListener = (brick) ->
+
         angular.element(brick).css
           position: 'absolute'
-          visibility: 'hidden'
+          # visibility: 'hidden'
 
         imagesLoaded(brick).on 'done', -> fixBrick brick
 
