@@ -26,13 +26,11 @@ angular.module "masonryLayout", []
 ]
 
 .directive "masonryWall", [
-  "$window", "$rootScope"
-  ($window, $rootScope) ->
-    class Wall
-      constructor: (marginX, marginY, @brickWidth) ->
-        @BRICK_WIDTH = @brickWidth or 0
-        @BRICK_MARGIN_X = marginX or 0
-        @BRICK_MARGIN_Y = marginY or 0
+  "$window"
+  ($window) ->
+
+    controller: class
+      constructor: ->
         @imagesLoadCount = 0
         @totalItemCount = 0
         @resizing = false
@@ -40,6 +38,11 @@ angular.module "masonryLayout", []
         @containers
         @containerWidth
         @marginWidth
+
+      readAttrs: (marginX, marginY, @brickWidth) ->
+        @BRICK_WIDTH = @brickWidth or 0
+        @BRICK_MARGIN_X = marginX or 0
+        @BRICK_MARGIN_Y = marginY or 0
 
       docHeight: -> $window.innerHeight * 2.5
 
@@ -77,43 +80,43 @@ angular.module "masonryLayout", []
 
     restrict: "EA"
     link: (scope, element, attrs, ctrl) ->
-      wall = new Wall(+attrs.marginX, +attrs.marginY, +attrs.brickWidth)
+      ctrl.readAttrs(+attrs.marginX, +attrs.marginY, +attrs.brickWidth)
       homeColumn = undefined
 
       setNewCoordinates = (el) ->
-        homeColumn = wall.shortest()
-        newLeft = homeColumn * (wall.BRICK_WIDTH + wall.BRICK_MARGIN_X) + wall.marginWidth
-        newTop = wall.containers[homeColumn]
+        homeColumn = ctrl.shortest()
+        newLeft = homeColumn * (ctrl.BRICK_WIDTH + ctrl.BRICK_MARGIN_X) + ctrl.marginWidth
+        newTop = ctrl.containers[homeColumn]
 
         angular.element(el).css
           left: newLeft
           top: newTop
 
       repaint = debounce ->
-          if wall.shouldResize()
+          if ctrl.shouldResize()
             imageContainers = element[0].children
-            wall.resizing = true
-            wall.setWindowWidth()
+            ctrl.resizing = true
+            ctrl.setWindowWidth()
 
             #Reset wall attributes
-            wall.reset element
+            ctrl.reset element
             for container in imageContainers
               setNewCoordinates container
 
-              wall.update homeColumn, container.scrollHeight + wall.BRICK_MARGIN_Y
+              ctrl.update homeColumn, container.scrollHeight + ctrl.BRICK_MARGIN_Y
 
-            element.css height: wall.tallest() + "px"
-            wall.resizing = false
+            element.css height: ctrl.tallest() + "px"
+            ctrl.resizing = false
         , 300
 
       fixBrick = (brick) ->
         setNewCoordinates brick
-        wall.update homeColumn, brick.scrollHeight + wall.BRICK_MARGIN_Y
+        ctrl.update homeColumn, brick.scrollHeight + ctrl.BRICK_MARGIN_Y
 
         #this is the last image loaded
         #correct parent height
-        if ++wall.imagesLoadCount is wall.totalItemCount
-          element.css height: wall.tallest()
+        if ++ctrl.imagesLoadCount is ctrl.totalItemCount
+          element.css height: ctrl.tallest()
 
       attachListener = (brick) ->
 
@@ -130,13 +133,13 @@ angular.module "masonryLayout", []
         return if newCount is oldCount
         if oldCount is 0
           element.css height: 0
-          wall.totalItemCount = 0
-          wall.imagesLoadCount = 0
+          ctrl.totalItemCount = 0
+          ctrl.imagesLoadCount = 0
 
           #Reset wall attributes
-          wall.reset element
-        wall.totalItemCount = newCount
-        element.css height: wall.tallest() + (wall.docHeight()) + "px"
+          ctrl.reset element
+        ctrl.totalItemCount = newCount
+        element.css height: ctrl.tallest() + (ctrl.docHeight()) + "px"
 
         i = oldCount
         while i < newCount
