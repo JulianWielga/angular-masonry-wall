@@ -16,8 +16,8 @@ debounce = (func, threshold, execAsap) ->
 angular.module "masonryLayout", []
 
 .directive "masonry", [
-  "$window", "$rootScope", '$animate'
-  ($window, $rootScope, $animate) ->
+  "$window", "$rootScope"
+  ($window, $rootScope) ->
     class Wall
       constructor: (marginX, marginY, @imgWidth) ->
         @IMG_WIDTH = @imgWidth or 0
@@ -113,7 +113,7 @@ angular.module "masonryLayout", []
           position: 'absolute'
           # visibility: 'hidden'
 
-        imagesLoaded(brick).on 'done', -> fixBrick brick
+        imagesLoaded brick, -> fixBrick brick
 
       # wall.imagesLoadCount++;
       scope.$watch ->
