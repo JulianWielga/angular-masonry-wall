@@ -1,18 +1,5 @@
 "use strict"
 
-debounce = (func, threshold, execAsap) ->
-  timeout = null
-  (args...) ->
-    obj = this
-    delayed = ->
-      func.apply(obj, args) unless execAsap
-      timeout = null
-    if timeout
-      clearTimeout(timeout)
-    else if (execAsap)
-      func.apply(obj, args)
-    timeout = setTimeout delayed, threshold || 100
-
 angular.module "masonryLayout", []
 
 .directive "masonryBrick", [->
@@ -92,7 +79,7 @@ angular.module "masonryLayout", []
           left: newLeft
           top: newTop
 
-      repaint = debounce ->
+      repaint = _.debounce ->
           if ctrl.shouldResize()
             imageContainers = element[0].children
             ctrl.resizing = true
