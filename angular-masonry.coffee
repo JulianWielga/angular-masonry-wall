@@ -69,8 +69,6 @@ angular.module "masonryLayout", []
     link: (scope, element, attrs, ctrl) ->
       wall = new Wall(+attrs.marginX, +attrs.marginY, +attrs.brickWidth)
       homeColumn = undefined
-      newLeft = undefined
-      newTop = undefined
 
       setNewCoordinates = (el) ->
         homeColumn = wall.shortest()
