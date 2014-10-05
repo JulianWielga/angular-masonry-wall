@@ -1,4 +1,4 @@
-angular.module('masonryApp', ['masonryLayout', 'infinite-scroll'])
+angular.module('masonryApp', ['angularMasonryWall', 'infinite-scroll'])
 
 .controller("LoadImages", ['$scope', '$interval', '$timeout', function($scope, $interval, $timeout) {
 
@@ -27,17 +27,17 @@ angular.module('masonryApp', ['masonryLayout', 'infinite-scroll'])
             for(var i=0; i<30; i++) {
                 $scope.images.push({
                     src: '250/' + heights[i % heights.length] + '/' + cats[Math.floor(Math.random() * cats.length )]
-                }); 
+                });
 
                 $scope.images2.push({
                     src: '150/' + heights[i % heights.length] + '/' + cats[Math.floor(Math.random() * cats.length )]
-                });     
+                });
             }
 
             busy = false;
 
         }
 
-    };   
+    };
 
 }])

@@ -1,136 +1,112 @@
 "use strict"
 
-angular.module "masonryLayout", [
-  'masonryLayoutBrick'
+debounce = (func, threshold) ->
+  timeout = null
+  (args...) ->
+    obj = this
+    delayed = ->
+      func.apply(obj, args)
+      timeout = null
+    if timeout
+      clearTimeout(timeout)
+    timeout = setTimeout delayed, threshold || 100
+
+
+angular.module "angularMasonryWall", [
+  'angularMasonryBrick'
 ]
 
-.directive "masonryWall", [
-  "$window"
-  ($window) ->
-    restrict: "EA"
+.directive "masonryWall", ["$window", ($window) ->
+  restrict: "EA"
+  scope: yes
 
-    controller: ['$scope', '$attrs', class
-      constructor: (@scope, @attrs) ->
-        @imagesLoadCount = 0
-        @totalItemCount = 0
-        @resizing = false
-        @windowWidth = $window.innerWidth
-        @containers
-        @containerWidth
-        @marginWidth
-        @brickWidth = +@attrs.brickWidth
-        @BRICK_WIDTH = @brickWidth or 0
-        @BRICK_MARGIN_X = +@attrs.marginX or 0
-        @BRICK_MARGIN_Y = +@attrs.marginY or 0
+  controller: ['$scope', '$element', '$attrs', class Wall
+    debounce: (threshold) => (func) => debounce func, threshold
 
-      docHeight: -> $window.innerHeight * 2.5
+    constructor: (@scope, @el, @attrs) ->
+      @BRICK_WIDTH = +@attrs.brickWidth or 0
+      @BRICK_MARGIN_X = +@attrs.marginX or 0
+      @BRICK_MARGIN_Y = +@attrs.marginY or 0
 
-      reset: ($element) ->
-        @checkbrickWidth $element[0].children[0].offsetWidth
-        document.body.style.overflow = "scroll"
-        @containerWidth = $element[0].clientWidth
-        document.body.style.overflow = "auto"
-        columns = Math.floor((@containerWidth + @BRICK_MARGIN_X) / (@BRICK_WIDTH + @BRICK_MARGIN_X))
-        @marginWidth = Math.abs((@containerWidth - @BRICK_WIDTH * columns - @BRICK_MARGIN_X * (columns - 1)) / 2)
-        @containers = new Array columns
-        @containers[i] = 0 for container, i in @containers
+      @containers = []
+      @bricks = []
 
-      checkbrickWidth: (firstElWidth) ->
-        return if @brickWidth > 0
-        @BRICK_WIDTH = firstElWidth if firstElWidth > 0
+      @debouncedRepaint = @debounce(300) @repaint
 
-      setWindowWidth: ->
-        @windowWidth = $window.innerWidth
+      @el.css
+        position: 'relative'
 
-      shortest: ->
-        @containers.indexOf @containers.slice().sort((a, b) ->
-          a - b
-        )[0]
+      @init()
 
-      shouldResize: -> not @resizing
+    init: =>
+      @debouncedRepaint()
 
-      tallest: ->
-        @containers.slice().sort((a, b) ->
-          b - a
-        )[0]
+    addBrick: (brick) =>
+      @bricks.push brick if brick?
+      return this
 
-      update: (column, height) ->
-        @containers[column] += height
-    ]
+    removeBrick: (brick) =>
+      if brick?
+        index = @bricks.indexOf brick
+        @bricks.splice index, 1
+        @debouncedRepaint()
+      return this
 
-    link: (scope, element, attrs, ctrl) ->
-      homeColumn = undefined
+    fixBrick: (brick) =>
+      column = @getShortestColumn()
+      brick.setColumn column
+      brick.reposition @getColumnPosition column
+      if h = brick.getHeight()
+        @update column, h + @BRICK_MARGIN_Y
+      return this
 
-      setNewCoordinates = (el) ->
-        homeColumn = ctrl.shortest()
-        newLeft = homeColumn * (ctrl.BRICK_WIDTH + ctrl.BRICK_MARGIN_X) + ctrl.marginWidth
-        newTop = ctrl.containers[homeColumn]
+    calcColumns: =>
+      @checkBrickWidth()
+      document.body.style.overflow = "scroll"
+      @containerWidth = @el[0].clientWidth
+      document.body.style.overflow = "auto"
+      columns = Math.floor((@containerWidth + @BRICK_MARGIN_X) / (@BRICK_WIDTH + @BRICK_MARGIN_X))
+      @marginWidth = Math.abs((@containerWidth - @BRICK_WIDTH * columns - @BRICK_MARGIN_X * (columns - 1)) / 2)
+      @containers = new Array columns
+      @containers[i] = 0 for container, i in @containers
+      return this
 
-        angular.element(el).css
-          left: newLeft
-          top: newTop
+    checkBrickWidth: =>
+      return if @attrs.brickWidth > 0
+      width = @el[0].children[0].offsetWidth
+      @BRICK_WIDTH = width if width > 0
+      return this
 
-      repaint = _.debounce ->
-          if ctrl.shouldResize()
-            imageContainers = element[0].children
-            ctrl.resizing = true
-            ctrl.setWindowWidth()
+    getShortestColumn: =>
+      @containers.indexOf @containers.slice().sort((a, b) ->
+        a - b
+      )[0]
 
-            #Reset wall attributes
-            ctrl.reset element
-            for container in imageContainers
-              setNewCoordinates container
+    getTallestColumn: =>
+      @containers.slice().sort((a, b) ->
+        b - a
+      )[0]
 
-              ctrl.update homeColumn, container.scrollHeight + ctrl.BRICK_MARGIN_Y
+    getColumnPosition: (column) =>
+      left: column * (@BRICK_WIDTH + @BRICK_MARGIN_X) + @marginWidth
+      top: @containers[column]
 
-            element.css height: ctrl.tallest() + "px"
-            ctrl.resizing = false
-        , 300
+    update: (column, height) ->
+      @containers[column] += height
+      return this
 
-      fixBrick = (brick) ->
-        setNewCoordinates brick
-        ctrl.update homeColumn, brick.scrollHeight + ctrl.BRICK_MARGIN_Y
+    repaint: (fromBrick) =>
+      @calcColumns()
+      @fixBrick brick for brick in @bricks
 
-        #this is the last image loaded
-        #correct parent height
-        if ++ctrl.imagesLoadCount is ctrl.totalItemCount
-          element.css height: ctrl.tallest()
+      @el.css height: @getTallestColumn()
 
-      attachListener = (brick) ->
+      return this
+  ]
 
-        angular.element(brick).css
-          position: 'absolute'
-          # visibility: 'hidden'
+  link: (scope, element, attrs, wall) ->
+    angular.element($window).on "resize", wall.debouncedRepaint
+    scope.$on "$destroy", ->
+      angular.element($window).off "resize", wall.debouncedRepaint
 
-        imagesLoaded brick, -> fixBrick brick
-
-      # wall.imagesLoadCount++;
-      scope.$watch ->
-        element[0].children.length
-      , (newCount, oldCount) ->
-        return if newCount is oldCount
-        if oldCount is 0
-          element.css height: 0
-          ctrl.totalItemCount = 0
-          ctrl.imagesLoadCount = 0
-
-          #Reset wall attributes
-          ctrl.reset element
-        ctrl.totalItemCount = newCount
-        element.css height: ctrl.tallest() + (ctrl.docHeight()) + "px"
-
-        i = oldCount
-        while i < newCount
-          attachListener element[0].children[i]
-          i++
-
-      angular.element($window).on "resize", repaint
-
-      scope.$on "brickLeave", -> console.log "brickLeave"
-      scope.$on "brickEnter", -> console.log "brickEnter"
-
-      scope.$on "$destroy", ->
-        angular.element($window).off "resize", repaint
-
-      element.css position: "relative"
 ]
