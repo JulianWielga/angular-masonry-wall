@@ -1,17 +1,5 @@
 "use strict"
 
-debounce = (func, threshold) ->
-  timeout = null
-  (args...) ->
-    obj = this
-    delayed = ->
-      func.apply(obj, args)
-      timeout = null
-    if timeout
-      clearTimeout(timeout)
-    timeout = setTimeout delayed, threshold || 100
-
-
 angular.module "angularMasonryWall", [
   'angularMasonryBrick'
 ]
@@ -21,7 +9,7 @@ angular.module "angularMasonryWall", [
   scope: yes
 
   controller: ['$scope', '$element', '$attrs', class Wall
-    debounce: (threshold) => (func) => debounce func, threshold
+    throttle: (threshold) => (func) => _.throttle func, threshold
 
     constructor: (@scope, @el, @attrs) ->
       @BRICK_WIDTH = +@attrs.brickWidth or 0
@@ -31,7 +19,7 @@ angular.module "angularMasonryWall", [
       @containers = []
       @bricks = []
 
-      @debouncedRepaint = @debounce(300) @repaint
+      @throttledRepaint = @throttle(300) @repaint
 
       @el.css
         position: 'relative'
@@ -39,18 +27,18 @@ angular.module "angularMasonryWall", [
       @init()
 
     init: =>
-      @debouncedRepaint()
+      @throttledRepaint()
 
     addBrick: (brick, index) =>
-      index ?= [].slice.call(@el[0].children).indexOf brick.el[0]
+      index ?= _.indexOf @el[0].children, brick.el[0]
       @bricks.splice index, 0, brick
       return this
 
     removeBrick: (brick) =>
       if brick?
-        index = @bricks.indexOf brick
+        index = _.indexOf @bricks, brick
         @bricks.splice index, 1
-        @debouncedRepaint()
+        @throttledRepaint()
       return this
 
     fixBrick: (brick) =>
@@ -106,8 +94,8 @@ angular.module "angularMasonryWall", [
   ]
 
   link: (scope, element, attrs, wall) ->
-    angular.element($window).on "resize", wall.debouncedRepaint
+    angular.element($window).on "resize", wall.throttledRepaint
     scope.$on "$destroy", ->
-      angular.element($window).off "resize", wall.debouncedRepaint
+      angular.element($window).off "resize", wall.throttledRepaint
 
 ]

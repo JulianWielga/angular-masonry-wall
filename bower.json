@@ -1,6 +1,6 @@
 {
   "name": "angular-masonry-wall",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "authors": [
     "Bimal Kumar",
     "Julian Wielga"
@@ -28,7 +28,8 @@
   "dependencies": {
     "angular": ">= 1.2 < 1.4",
     "angular-animate": ">= 1.2 < 1.4",
-    "imagesloaded": ">= 3.1 < 3.2"
+    "imagesloaded": ">= 3.1 < 3.2",
+    "underscore": "~1.7.0"
   },
   "devDependencies": {
     "jquery": "~2.1.1",

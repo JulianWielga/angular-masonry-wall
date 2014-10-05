@@ -35,7 +35,7 @@ angular.module "angularMasonryBrick", []
 		wall = controllers[1]
 
 		imagesLoaded element, ->
-			wall.debouncedRepaint()
+			wall.throttledRepaint()
 			scope.$emit "brickLoaded"
 
 		scope.$on "$destroy", ->
