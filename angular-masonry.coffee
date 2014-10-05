@@ -73,8 +73,8 @@ angular.module "angularMasonryWall", [
 
     checkBrickWidth: =>
       return if @attrs.brickWidth > 0
-      width = @el[0].children[0].offsetWidth
-      @BRICK_WIDTH = width if width > 0
+      width = @el[0].children[0]?.offsetWidth
+      @BRICK_WIDTH = width or 100
       return this
 
     getShortestColumn: =>

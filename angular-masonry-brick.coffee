@@ -5,7 +5,7 @@ angular.module "angularMasonryBrick", []
 .directive "masonryBrick", ['$animate', ($animate) ->
 	restrict: "EA"
 	require: ['masonryBrick', '^^masonryWall']
-	scope: yes
+	# scope: yes
 
 	controller: ['$scope', '$element', '$attrs', class Brick
 		constructor: (@scope, @el, @attrs) ->
@@ -42,7 +42,6 @@ angular.module "angularMasonryBrick", []
 				scope.$emit "brickLoaded"
 
 		scope.$on "$destroy", =>
-			$animate.cancel brick.animation
 			wall.removeBrick brick
 			scope.$emit "brickLeave"
 
