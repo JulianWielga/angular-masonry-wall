@@ -2,15 +2,13 @@
 
 angular.module "angularMasonryBrick", []
 
-.directive "masonryBrick", ['$animate', ($animate) ->
+.directive "masonryBrick", ['$animate', '$timeout', ($animate, $timeout) ->
 	restrict: "EA"
 	require: ['masonryBrick', '^^masonryWall']
 	# scope: yes
 
 	controller: ['$scope', '$element', '$attrs', class Brick
 		constructor: (@scope, @el, @attrs) ->
-			@animation = null
-
 			@el.css
 				position: 'absolute'
 
@@ -24,6 +22,10 @@ angular.module "angularMasonryBrick", []
 
 		reposition: (position) =>
 			@el.css position
+
+			unless @el.hasClass 'loaded'
+				$timeout => $animate.addClass @el, 'loaded'
+
 			return this
 
 	]
@@ -32,16 +34,11 @@ angular.module "angularMasonryBrick", []
 		brick = controllers[0]
 		wall = controllers[1]
 
-		element.css display: 'none'
+		imagesLoaded element, ->
+			wall.debouncedRepaint()
+			scope.$emit "brickLoaded"
 
-		imagesLoaded element, =>
-			element.css display: 'block'
-			brick.animation = $animate.addClass element, 'loaded'
-			.then =>
-				wall.debouncedRepaint brick
-				scope.$emit "brickLoaded"
-
-		scope.$on "$destroy", =>
+		scope.$on "$destroy", ->
 			wall.removeBrick brick
 			scope.$emit "brickLeave"
 
