@@ -41,8 +41,9 @@ angular.module "angularMasonryWall", [
     init: =>
       @debouncedRepaint()
 
-    addBrick: (brick) =>
-      @bricks.push brick if brick?
+    addBrick: (brick, index) =>
+      index ?= [].slice.call(@el[0].children).indexOf brick.el[0]
+      @bricks.splice index, 0, brick
       return this
 
     removeBrick: (brick) =>
