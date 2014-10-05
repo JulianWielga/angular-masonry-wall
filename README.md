@@ -19,7 +19,7 @@ http://bimal1331.github.io/angular-masonry-fly
 
 or
 
-use [Bower](http://bower.io/) to install `bower install https://github.com/JulianWielga/angular-masonry-wall.git`
+use [Bower](http://bower.io/) to install `bower install angular-masonry-wall`
 
 #####USAGE
 
