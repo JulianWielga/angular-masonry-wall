@@ -36,4 +36,6 @@ use [Bower](http://bower.io/) to install `bower install angular-masonry-wall`
 	+ margin-y - Vertical gap between image containers (default: 0)
 	+ brick-width - Image width you'll be using for the layout, ideally should be image's natural width (if not set or 0: width of first element)
 
+	Prameters are optional, better use css for formatting. After full load and initial positioning of brick ***loaded*** class is added with ngAnimate.
+
 That's it!
